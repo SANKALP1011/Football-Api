@@ -1,11 +1,15 @@
 const express = require("express");
 const mysql = require("mysql");
+const path = require("path");
+require('dotenv').config({ 
+    path: path.resolve(__dirname, '../.env') 
+  })
 
 const DbConnection = mysql.createPool({
-    "host": "",
-    "password": "",
-    "user": "",
-    "port": ""
+    "host": '127.0.0.1',
+    "password": 'mysqldatabase',
+    "user": 'root',
+    "port": '3306',
 })
 
 try{
