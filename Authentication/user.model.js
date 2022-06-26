@@ -10,9 +10,11 @@ module.exports = {
             ],
             (err,result)=>{
                 if(err){
+                    console.log(err)
                     callback(err)
                 }
                 else{
+                 console.log(result)
                  return callback(null,result);
                 }
             }
