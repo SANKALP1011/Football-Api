@@ -1,8 +1,14 @@
 const express = require("express");
 const getCountrywiseLeagues = require("./Routes/Country/getLeagueInCountry")
 const app = express();
+const env = require('./')
+const path = require("path");
+const DbConnection = require("./Database/DatabaseConfig");
 const port = process.env.PORT || "3004"
 app.use(express.urlencoded({extended:true}))
+require('dotenv').config({ 
+    path: path.resolve(__dirname, './.env') 
+  })
 
 app.use(getCountrywiseLeagues)
 
