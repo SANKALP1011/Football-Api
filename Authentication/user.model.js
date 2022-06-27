@@ -4,9 +4,9 @@ module.exports = {
     createUser: (data,callback)=>{
         const RegisterQuery = `Insert into User(Name,Email,Password) values (?,?,?)`;
         DbConnection.query(RegisterQuery,
-            [data.name,
-             data.email,
-             data.password
+            [data.Name,
+             data.Email,
+             data.Password
             ],
             (err,result)=>{
                 if(err){
