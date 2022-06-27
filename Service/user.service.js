@@ -19,5 +19,18 @@ module.exports = {
                 }
             }
         );   
+    },
+    LoginUser: (data,callback)=>{
+        const LoginQuery = 'Select* from User where Email = ?'
+        DbConnection.query(LoginQuery,[data.Email],(err,result)=>{
+            if(err){
+                console.log(err)
+                callback(err)
+            }
+            else{
+                console.log(result)
+                callback(null,result)
+            }
+        })
     }
 }
