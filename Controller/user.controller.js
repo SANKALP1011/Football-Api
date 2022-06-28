@@ -53,6 +53,7 @@ module.exports = {
                     message: "Email not found/Invalid Email/Wrong Login credentials"
                 })
             }
+            // console.log(results)
                const PasswordValidation = compareSync(body.Password,results.Password)
                 if(PasswordValidation){
                     results.Password = undefined
