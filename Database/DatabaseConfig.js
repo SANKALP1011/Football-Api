@@ -10,6 +10,7 @@ const DbConnection = mysql.createPool({
     "password": 'mysqldatabase',
     "user": 'root',
     "port": '3306',
+    "database": 'FootballApi'
 })
 
 try{

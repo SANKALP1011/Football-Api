@@ -26,7 +26,7 @@ const AuthToken = (req,res,next)=>{
         console.log("error")
         return res.json({
             success: "No",
-            message: "You are unathentucated , please try again"
+            message: "You are unathenticated , please try again"
         })
     }
 }

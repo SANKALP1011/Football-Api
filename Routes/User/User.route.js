@@ -1,8 +1,14 @@
 const express = require("express")
 const UserRouter = express.Router();
-const RegisterUser = require("../../Authentication/user.controller");
+const jh = express.Router();
+const {CreateUser,Login} = require("../../Controller/user.controller")
 const Token = require("../../Authentication/AuthToken/AuthToken")
 
 UserRouter.
-post("/Register",Token,RegisterUser)
+post("/Register",CreateUser)
+// UserRouter.
+// post("/Login",Login)
+jh.
+post("/Login",Login);
 module.exports = UserRouter
+module.exports = jh
