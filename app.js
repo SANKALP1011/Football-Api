@@ -1,11 +1,9 @@
 const express = require("express");
-const getCountrywiseLeagues = require("./Routes/Country/getLeagueInCountry")
 const app = express();
-const env = require('./')
 const path = require("path");
-const DbConnection = require("./Database/DatabaseConfig");
-const RegisterUser = require("./Routes/User/User.route")
-const Login = require("./Routes/User/User.route")
+const getCountrywiseLeagues = require("./Routes/Country/getLeagueInCountry")
+const RegisterUser = require("./Routes/User/Register.route")
+const LoginUser = require("./Routes/User/Login.route");
 const port = process.env.PORT || "3004"
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
@@ -14,7 +12,7 @@ require('dotenv').config({
   })
 
 app.use(RegisterUser)
-app.use(Login)
+app.use(LoginUser)
 app.use(getCountrywiseLeagues)
 
 

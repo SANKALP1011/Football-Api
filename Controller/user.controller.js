@@ -1,15 +1,16 @@
-const {hashSync,genSaltSync,compareSync} = require("bcryptjs");
+const {hashSync,genSaltSync,compareSync, compare} = require("bcryptjs");
 const {createUser,LoginUser} = require("../Service/user.service")
-const {ValidationSchema} = require("../Validation/Validation")
+const {RegistrationValidation} = require("../Validation/Validation")
+const {LoginValidation} = require("../Validation/Validation")
 const {sign} = require("jsonwebtoken")
 
 module.exports = {
     CreateUser: async (req,res) =>{
-        const body = req.body
+        const body =  req.body
          const Salt =  genSaltSync(10);
          body.Password = hashSync(body.Password,Salt)
           
-        const {error} = ValidationSchema(req.body)
+        const {error} = RegistrationValidation(req.body)
         if (error){
             return res.status(400).json({
                 error: "Yes",
@@ -17,7 +18,7 @@ module.exports = {
             })
         }
         else{
-            createUser(body,(err,results)=>{
+         createUser(body,(err,results)=>{
                 if(err){
                     console.log(err)
                     return res.status(500).json({
@@ -35,7 +36,7 @@ module.exports = {
             })
         }
         },
-    Login: (req,res)=>{
+    Login:  (req,res)=>{
         const body = req.body
         const email = body.Email;
         console.log(email)
@@ -53,12 +54,12 @@ module.exports = {
                     message: "Email not found/Invalid Email/Wrong Login credentials"
                 })
             }
-            // console.log(results)
-               const PasswordValidation = compareSync(body.Password,results.Password)
+            console.log(results)
+               const PasswordValidation = compare(body.Password,results.Password);
                 if(PasswordValidation){
                     results.Password = undefined
                     const LoginToken = sign({PasswordValidation: results},"demo12312",{
-                        expiresIn: 86400 
+                        expiresIn: 864000 
                     })
                     return res.status(200).json({
                         Succes: "Yes",
