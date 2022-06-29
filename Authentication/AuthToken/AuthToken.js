@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const demoToken = "demo12312";
 
 const AuthToken = (req,res,next)=>{
-    let token = req.get("authorization");
+    let token = req.Headers.Authorization;
     if(token){
         token = token.slice(5);
         jwt.verify(token,demoToken,(err,decodeToken)=>{
@@ -20,7 +20,7 @@ const AuthToken = (req,res,next)=>{
                  req.decoded = decodeToken;
                  next();
             }
-        })
+        });
     }
     else{
         console.log("error")

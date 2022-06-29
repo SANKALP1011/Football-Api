@@ -1,7 +1,7 @@
 const express = require("express")
 const joi = require("joi")
 
-const ValidationSchema = data => {
+const RegistrationValidation = data => {
     const Schema = joi.object({
         Name: joi.string().required(),
         Email: joi.string().email().required(),
@@ -9,7 +9,7 @@ const ValidationSchema = data => {
     })
     return Schema.validate(data)
 }
-module.exports.ValidationSchema = ValidationSchema
+module.exports.RegistrationValidation = RegistrationValidation
 
 const LoginValidation = data =>{
     const Schema = joi.object({
