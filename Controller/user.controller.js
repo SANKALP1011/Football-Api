@@ -3,12 +3,14 @@ const {createUser,LoginUser} = require("../Service/user.service")
 const {RegistrationValidation} = require("../Validation/Validation")
 const {LoginValidation} = require("../Validation/Validation")
 const {sign} = require("jsonwebtoken")
+const Hash = require("password-hash");
 
 module.exports = {
     CreateUser: async (req,res) =>{
-        const body =  req.body
-         const Salt =  genSaltSync(10);
-         body.Password = hashSync(body.Password,Salt)
+         const body =  req.body
+         body.Password = Hash.generate(body.Password)
+        //  const Salt = await genSaltSync(10);
+        //  body.Password = await hashSync(body.Password,Salt)
           
         const {error} = RegistrationValidation(req.body)
         if (error){
@@ -39,8 +41,6 @@ module.exports = {
     Login:  (req,res)=>{
         const body = req.body
         const email = body.Email;
-        console.log(email)
-        console.log(body.Password)
         LoginUser(email,(err,results)=>{
             if(err){
                 res.status(500).json({
@@ -55,9 +55,11 @@ module.exports = {
                 })
             }
             console.log(results)
-               const PasswordValidation = compare(body.Password,results.Password);
+            // console.log(body.Password);
+            // console.log(results.Password)
+                const PasswordValidation = Hash.verify(body.Password,results[0].Password)
+                console.log(PasswordValidation)
                 if(PasswordValidation){
-                    results.Password = undefined
                     const LoginToken = sign({PasswordValidation: results},"demo12312",{
                         expiresIn: 864000 
                     })

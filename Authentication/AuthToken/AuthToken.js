@@ -1,9 +1,9 @@
 const express = require("express")
 const jwt = require("jsonwebtoken")
 
-const demoToken = "demo12312";
 
 const AuthToken = (req,res,next)=>{
+    const demoToken = "demo12312";
     let token = req.Headers.Authorization;
     if(token){
         token = token.slice(5);
