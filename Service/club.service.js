@@ -23,5 +23,16 @@ module.exports = {
         }
     })
 
+ },
+ FetchClubsByName: (name,callback) =>{
+    const query = "Select * from Clubs where name = ?";
+    DbConnection.query(query,[name],(err,result)=>{
+        if(err){
+           return callback(err)
+        }
+        else{
+           return callback(null,result)
+        }
+    })
  }
 }
