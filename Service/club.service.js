@@ -12,6 +12,5 @@ module.exports = {
             callback(null,results)
         }
        })
-        
-    }
+ }
 }
