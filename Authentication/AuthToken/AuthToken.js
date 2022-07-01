@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 
 const AuthToken = (req,res,next)=>{
     const demoToken = "demo12312";
-    let token = req.Headers.Authorization;
+    let token = req.get("authorizations");
     if(token){
         token = token.slice(5);
         jwt.verify(token,demoToken,(err,decodeToken)=>{
