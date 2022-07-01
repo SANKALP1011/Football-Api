@@ -4,6 +4,6 @@ const {GetAllClubs} = require("../../Controller/clubs.controller")
 const CountryRouter = express.Router();
 
 CountryRouter.
-get("/country/League",AuthToken,GetAllClubs)
+get("/country/League",GetAllClubs)
 
 module.exports = CountryRouter;

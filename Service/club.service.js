@@ -12,5 +12,16 @@ module.exports = {
           return callback(null,results)
         }
        })
+ },
+ FetchClubsById: (id,callback) =>{
+    const query = "Select * from Clubs where id = ?"
+    DbConnection.query(query,[id],(err,results)=>{
+        if(err){
+            return callback(err)
+        }else{
+            return callback(null,results)
+        }
+    })
+
  }
 }
