@@ -1,24 +1,40 @@
 const express = require("express");
 const joi = require("joi");
-const {FetchClubs} = require("../Service/club.service")
+const {FetchClubs,FetchClubsById} = require("../Service/club.service")
 
 module.exports = {
-  GetAllClubs: async (req,res)=>{
-       FetchClubs((err,results)=>{
+  GetAllClubs: (req,res)=>{
+   FetchClubs((err,results)=>{
         if(err){
-          console.log(err)
           return res.status(200).json({
             Success: "No",
             message: err
-
-          })
+            })
         }
-        else{
-          console.log(results);
-        }
+            return res.json({
+              Success: "Yes",
+              message: results
+             })
+        
        }) 
   },
-  GetClubsByCountry: async (req,res)=>{
-    
+  GetClubsById: async (req,res)=>{
+    const body = req.body;
+    const id = body.id;
+    FetchClubsById(id,(err,results)=>{
+      if(err){
+        return res.status(200).json({
+          Success: "No",
+          message: err
+        })
+      }
+      else{
+        return res.status(500).json({
+          Success: "Yes",
+          message: results
+        })
+      }
+    })
+
   }  
 }

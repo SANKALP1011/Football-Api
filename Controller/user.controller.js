@@ -9,8 +9,6 @@ module.exports = {
     CreateUser: async (req,res) =>{
          const body =  req.body
          body.Password = Hash.generate(body.Password)
-        //  const Salt = await genSaltSync(10);
-        //  body.Password = await hashSync(body.Password,Salt)
           
         const {error} = RegistrationValidation(req.body)
         if (error){
@@ -55,8 +53,6 @@ module.exports = {
                 })
             }
             console.log(results)
-            // console.log(body.Password);
-            // console.log(results.Password)
                 const PasswordValidation = Hash.verify(body.Password,results[0].Password)
                 console.log(PasswordValidation)
                 if(PasswordValidation){
