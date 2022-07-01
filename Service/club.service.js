@@ -6,12 +6,10 @@ module.exports = {
        const query = "Select * from Clubs";
        DbConnection.query(query,(err,results)=>{
         if(err){
-            // console.log(err)
             callback(err)
         }
         else{
             callback(null,results)
-            console.log(results)
         }
        })
         

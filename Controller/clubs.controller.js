@@ -10,11 +10,10 @@ module.exports = {
           return res.status(200).json({
             Success: "No",
             message: err
-
-          })
+            })
         }
         else{
-          console.log(results);
+             res.send(results)
         }
        }) 
   },
