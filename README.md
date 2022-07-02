@@ -5,6 +5,13 @@
 - This is the authenticated football where once the user is authenticated then user could use the auth token to access the other football routes.
 - This api fetches the information about various things such as Leagues , Clubs , Players and number of trophioes that club has won till now.
 
+# Stack
+ - Node and express as backend
+ - Mysql as database
+ - Heroku for deployment
+ - Jwt token for authentication
+ - Joi for validation
+
 # Routes 
 - Register
   > - This route helps in registering the user and authenticating the user 
@@ -35,6 +42,9 @@
   > - Fetches the information about players with specifc name by passinf /players/:name
 - Trophies
   > - Fetches the information about trophies for all the clubs 
+ 
+# Note 
+> Currently , no data is added to the database so if you will try to run the api and after registering you would get no data back from the api , you will get the response that no such table exists.
  
 # Json Demo Response 
 - Regsiter Response
@@ -112,6 +122,72 @@
 {
     "success": "No",
     "message": "You are unathenticated , please try again"
+}
+]
+```
+- Clubs By Id 
+``` json
+[
+{
+    "success": "No",
+    "message": "You are unathenticated , please try again"
+}
+]
+```
+- Clubs By Name 
+``` json 
+[
+{
+    "success": "No",
+    "message": "You are unathenticated , please try again"
+}
+]
+```
+- Players
+``` json 
+[
+{
+    "Success": "No",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.players' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from Players"
+    }
+}
+]
+```
+- Players By Id
+``` json
+[
+{
+    "Success": "Yes",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.players' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from Players where id = NULL"
+    }
+}
+]
+```
+- Players By Name
+``` json
+[
+{
+    "Success": "Yes",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.players' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from Players where id = NULL"
+    }
 }
 ]
 ```
