@@ -37,7 +37,83 @@
   > - Fetches the information about trophies for all the clubs 
  
 # Json Demo Response 
+- Regsiter Response
+``` json
+[
+{
+    "success": "Yes",
+    "message": "Successfully registered user in the database.",
+    "Further": "You can use this credentials to login and use the auth token to access the other routes"
+}
+]
 
- 
+```
+- Login Response
+``` json 
+[
+{
+    "Succes": "Yes",
+    "Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXNzd29yZFZhbGlkYXRpb24iOlt7Ik5hbWUiOiJzYW5rYWxwcHBhbmR5eSIsIkVtYWlsIjoic2Fua2FscEBnbWFpbGxsbC5jb20iLCJQYXNzd29yZCI6InNoYTEkYWM4NmUzODQkMSRkZDg2MGQyZWQ3MGMyNDI5ODg0MDc4ZmY1N2Y5MzI2ZDBkYjEzOWFiIn1dLCJpYXQiOjE2NTY3NzU1NTQsImV4cCI6MTY1NzYzOTU1NH0.yF3BfkLlpX2LeKHg1sa7VvibIMjXg_HcgV2qnguf12A",
+    "message": "You can use this token to access the routes"
+}
+]
+```
+- Leagues
+``` json
+[
+{
+    "Success": "No",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.leagues' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from Leagues"
+    }
+}
+]
+```
+- Leagues By Id
+``` json  
+[
+{
+    "Success": "No",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.league' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from League where id = NULL"
+    }
+}
+]
+```
+- Leagues By Name
+``` json
+[
+{
+    "Success": "No",
+    "message": {
+        "code": "ER_NO_SUCH_TABLE",
+        "errno": 1146,
+        "sqlMessage": "Table 'footballapi.league' doesn't exist",
+        "sqlState": "42S02",
+        "index": 0,
+        "sql": "Select * from League where id = NULL"
+    }
+}
+]
+```
+- Clubs
+``` json
+[
+{
+    "success": "No",
+    "message": "You are unathenticated , please try again"
+}
+]
+```
   
 
