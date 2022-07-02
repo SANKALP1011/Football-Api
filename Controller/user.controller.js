@@ -30,7 +30,8 @@ module.exports = {
                      console.log(results)
                      return res.status(200).json({
                         success: "Yes",
-                        message: "Successfully registered user in the database."
+                        message: "Successfully registered user in the database.",
+                        Further: "You can use this credentials to login and use the auth token to access the other routes"
                      })
                 }
             })
