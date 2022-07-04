@@ -20,5 +20,12 @@ const LoginValidation = data =>{
 }
 module.exports.LoginValidation = LoginValidation;
 
+const NameValidataion = data =>{
+    const Schema = joi.object({
+        Name: joi.string().required()
+    })
+    return Schema.validate(data)
+}
+module.exports.NameValidataion = NameValidataion
 
     
