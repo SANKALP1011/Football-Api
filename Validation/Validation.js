@@ -14,7 +14,7 @@ module.exports.RegistrationValidation = RegistrationValidation
 const LoginValidation = data =>{
     const Schema = joi.object({
         Email: joi.string().email().required(),
-        Password: joi.string().min(6).required()
+        Password: joi.string().min(6).required()  
     })
     return Schema.validate(data)
 }
