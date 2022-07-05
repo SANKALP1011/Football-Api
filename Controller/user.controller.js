@@ -40,40 +40,51 @@ module.exports = {
     Login:  (req,res)=>{
         const body = req.body
         const email = body.Email;
-        LoginUser(email,(err,results)=>{
-            if(err){
-                res.status(500).json({
-                    Success: "No",
-                    message: "Connectivity error"
-                })
-            }
-            if(!results){
-                res.status(500).json({
-                    Success: "Yes",
-                    message: "Email not found/Invalid Email/Wrong Login credentials"
-                })
-            }
-            console.log(results)
-                const PasswordValidation = Hash.verify(body.Password,results[0].Password)
-                console.log(PasswordValidation)
-                if(PasswordValidation){
-                    const LoginToken = sign({PasswordValidation: results},"demo12312",{
-                        expiresIn: 864000 
-                    })
-                    return res.status(200).json({
-                        Succes: "Yes",
-                        Token : LoginToken,
-                        message: "You can use this token to access the routes"
-                    })
-                }
-                else{
-                    return res.status(500).json({
+
+        const {error} = LoginValidation(email)
+        if(error){
+           res.status(400).json({
+            Success: "No",
+            message: error.details[0].message
+           })
+        }
+        else{
+            LoginUser(email,(err,results)=>{
+                if(err){
+                    res.status(500).json({
                         Success: "No",
-                        message: "Please check whether the email is registered or not"
+                        message: "Connectivity error"
                     })
                 }
-            }
-        )
+                if(!results){
+                    res.status(500).json({
+                        Success: "Yes",
+                        message: "Email not found/Invalid Email/Wrong Login credentials"
+                    })
+                }
+                console.log(results)
+                    const PasswordValidation = Hash.verify(body.Password,results[0].Password)
+                    console.log(PasswordValidation)
+                    if(PasswordValidation){
+                        const LoginToken = sign({PasswordValidation: results},"demo12312",{
+                            expiresIn: 864000 
+                        })
+                        return res.status(200).json({
+                            Succes: "Yes",
+                            Token : LoginToken,
+                            message: "You can use this token to access the routes"
+                        })
+                    }
+                    else{
+                        return res.status(500).json({
+                            Success: "No",
+                            message: "Please check whether the email is registered or not"
+                        })
+                    }
+                }
+            )
+        }
+        
     }
 
     }
