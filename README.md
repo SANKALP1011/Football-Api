@@ -1,4 +1,4 @@
-# Football-Api
+# Football-Api v1.0.0
 - Node and express based ongoing football api
 
 # About 
