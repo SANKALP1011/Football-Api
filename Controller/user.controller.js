@@ -1,4 +1,3 @@
-const {hashSync,genSaltSync,compareSync, compare} = require("bcryptjs");
 const {createUser,LoginUser} = require("../Service/user.service")
 const {RegistrationValidation} = require("../Validation/Validation")
 const {LoginValidation} = require("../Validation/Validation")

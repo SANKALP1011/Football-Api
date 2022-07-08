@@ -1,7 +1,7 @@
 const express = require("express");
 const ClubsRouter = express.Router();
-const {GetClubsById,GetAllClubs,GetClubsByName} = require("../../Controller/clubs.controller")
-const Token = require("../../Middleware/AuthToken");
+const {GetClubsById,GetAllClubs,GetClubsByName} = require("../Controller/clubs.controller")
+const Token = require("../Middleware/AuthToken");
 
 ClubsRouter.get("/clubs/:id",Token,GetClubsById),
 ClubsRouter.get("/clubs",Token,GetAllClubs);
