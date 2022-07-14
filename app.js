@@ -64,6 +64,9 @@ app.use(Players)
 app.use(Trophie)
 
 
+console.log("jjkljkl")
+
+app.use(getCountrywiseLeagues)
 
 app.listen(port,(err)=>{
     console.log("server up and running")
