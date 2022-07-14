@@ -63,6 +63,7 @@ app.use(League)
 app.use(Players)
 app.use(Trophie)
 
+console.log("kjkjkj")
 
 console.log("jjkljkl")
 
