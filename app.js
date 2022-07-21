@@ -34,12 +34,8 @@ require('dotenv').config({
     servers: [
       {
         url: "http://localhost:3004",
-        description: 'Development Server',
-      },
-      // {
-      //   url: "http://localhost:3008",
-      //   description: "Testing Server"
-      // }
+        description: 'Production Server',
+      }
       ],
   };
 
@@ -63,6 +59,7 @@ app.use(League)
 app.use(Players)
 app.use(Trophie)
 
+console.log("kjkjkj")
 
 
 app.listen(port,(err)=>{
