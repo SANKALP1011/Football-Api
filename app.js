@@ -35,11 +35,7 @@ require('dotenv').config({
       {
         url: "http://localhost:3004",
         description: 'Production Server',
-      },
-      // {
-      //   url: "http://localhost:3008",
-      //   description: "Testing Server"
-      // }
+      }
       ],
   };
 

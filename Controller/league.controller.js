@@ -23,7 +23,7 @@ module.exports = {
     GetLeagueById: async (req,res)=>{
         const body = req.body;
         const id = body.id;
-        const {error} = NameValidataion(id)
+        const {error} = IdValidation(id)
         if(error){
             return res.status(200).json({
                 Success: "No",
@@ -51,19 +51,29 @@ module.exports = {
     GetLeagueByName: async (req,res)=>{
         const body = req.body;
         const name = body.name;
-        FetchLeagueByName(name,(err,result)=>{
-            if(err){
-                return res.status(200).json({
-                    Success: "No",
-                    message: err
-                })
-            }
-            else{
-                return res.status(500).json({
-                    Success: "Yes",
-                    message: result
-                })
-            }
-        })
+        const {error} = NameValidataion(name)
+        if(error){
+          return res.status(200).json({
+            Success: "No",
+            message: error.details[0].message
+          }) 
+        }
+        else{
+            FetchLeagueByName(name,(err,result)=>{
+                if(err){
+                    return res.status(200).json({
+                        Success: "No",
+                        message: err
+                    })
+                }
+                else{
+                    return res.status(500).json({
+                        Success: "Yes",
+                        message: result
+                    })
+                }
+            })
+        }
+        
     }
 }
