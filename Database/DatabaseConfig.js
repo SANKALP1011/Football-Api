@@ -7,7 +7,7 @@ require('dotenv').config({
 
 const DbConnection = mysql.createPool({
     "host": '127.0.0.1',
-    "password": 'mysqldatabase',
+    "password": 'happybarca',
     "user": 'root',
     "port": '3306',
     "database": 'FootballApi'
