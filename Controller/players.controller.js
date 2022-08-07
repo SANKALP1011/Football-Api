@@ -49,19 +49,29 @@ module.exports = {
     GetPlayersByName: async (req,res)=>{
          const body = req.body;
          const name = body.name;
-         FetchPlayersByName(name,(err,result)=>{
-              if(err){
-                return res.status(200).json({
-                    Success: "No",
-                    message: err
-                })
-              }
-              else{
-                return res.status(500).json({
-                    Success: "Yes",
-                    message: result
-                })
-              }
-         })
+         const {error} = NameValidataion(name);
+         if(error){
+            return res.status(200).json({
+                Success: "No",
+                message: error.details[0].message
+            })
+         }
+         else{
+            FetchPlayersByName(name,(err,result)=>{
+                if(err){
+                  return res.status(200).json({
+                      Success: "No",
+                      message: err
+                  })
+                }
+                else{
+                  return res.status(500).json({
+                      Success: "Yes",
+                      message: result
+                  })
+                }
+           })
+         }
+         
     }
 }
