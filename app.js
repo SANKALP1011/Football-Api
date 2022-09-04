@@ -8,6 +8,7 @@ const League = require("./Routes/league.router")
 const Clubs = require("./Routes/clubs.router")
 const Players = require("./Routes/players.router")
 const Trophie = require("./Routes/trophies.router")
+const connect = require("./Database/DatabaseConfig")
 
 const port = process.env.PORT || "3004"
 app.use(express.urlencoded({extended:true}))
