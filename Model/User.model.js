@@ -1,5 +1,5 @@
 const express = require("express");
-const sequelize = require("sequelize")
+const sequelize = require("../Database/DatabaseConfig").sequelize
 const {Sequelize,DataTypes} = require("sequelize");
 
 const UserModel = sequelize.define("User",{
@@ -11,15 +11,30 @@ const UserModel = sequelize.define("User",{
     },
     Name:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isAlpha: true
+        }
     },
     Email:{
         type: DataTypes.STRING,
-        isEmail: true
+        validate: {
+            isEmail: true
+        }
     },
     Password:{
-
+       type: DataTypes.NUMBER,
+       validate: {
+        isNum: true
+       }
     }
 })
 
-module.exports = UserModel;
+const s = sequelize.sync({force:true}).then(()=>{
+    console.log("Table created")
+})
+.catch(()=>{
+    console.log("Not created")
+})
+
+module.exports = s;
