@@ -1,84 +1,94 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-const _ = require("lodash");
-const SqlString = require("../../sql-string");
-const QueryTypes = require("../../query-types");
-const Dot = require("dottie");
-const deprecations = require("../../utils/deprecations");
-const uuid = require("uuid").v4;
-const { safeStringifyJson } = require("../../utils.js");
+'use strict';
+
+const _ = require('lodash');
+const SqlString = require('../../sql-string');
+const QueryTypes = require('../../query-types');
+const Dot = require('dottie');
+const deprecations = require('../../utils/deprecations');
+const uuid = require('uuid').v4;
+
 class AbstractQuery {
+
   constructor(connection, sequelize, options) {
     this.uuid = uuid();
     this.connection = connection;
     this.instance = options.instance;
     this.model = options.model;
     this.sequelize = sequelize;
-    this.options = __spreadValues({
+    this.options = {
       plain: false,
       raw: false,
-      logging: console.log
-    }, options);
+      // eslint-disable-next-line no-console
+      logging: console.log,
+      ...options
+    };
     this.checkLoggingOption();
-    if (options.rawErrors) {
-      this.formatError = AbstractQuery.prototype.formatError;
-    }
   }
+
+  /**
+   * rewrite query with parameters
+   *
+   * Examples:
+   *
+   *   query.formatBindParameters('select $1 as foo', ['fooval']);
+   *
+   *   query.formatBindParameters('select $foo as foo', { foo: 'fooval' });
+   *
+   * Options
+   *   skipUnescape: bool, skip unescaping $$
+   *   skipValueReplace: bool, do not replace (but do unescape $$). Check correct syntax and if all values are available
+   *
+   * @param {string} sql
+   * @param {object|Array} values
+   * @param {string} dialect
+   * @param {Function} [replacementFunc]
+   * @param {object} [options]
+   * @private
+   */
   static formatBindParameters(sql, values, dialect, replacementFunc, options) {
     if (!values) {
       return [sql, []];
     }
+
     options = options || {};
-    if (typeof replacementFunc !== "function") {
+    if (typeof replacementFunc !== 'function') {
       options = replacementFunc || {};
-      replacementFunc = void 0;
+      replacementFunc = undefined;
     }
+
     if (!replacementFunc) {
       if (options.skipValueReplace) {
-        replacementFunc = (match, key, values2) => {
-          if (values2[key] !== void 0) {
+        replacementFunc = (match, key, values) => {
+          if (values[key] !== undefined) {
             return match;
           }
-          return void 0;
+          return undefined;
         };
       } else {
-        replacementFunc = (match, key, values2, timeZone2, dialect2) => {
-          if (values2[key] !== void 0) {
-            return SqlString.escape(values2[key], timeZone2, dialect2);
+        replacementFunc = (match, key, values, timeZone, dialect) => {
+          if (values[key] !== undefined) {
+            return SqlString.escape(values[key], timeZone, dialect);
           }
-          return void 0;
+          return undefined;
         };
       }
     } else if (options.skipValueReplace) {
       const origReplacementFunc = replacementFunc;
-      replacementFunc = (match, key, values2, timeZone2, dialect2, options2) => {
-        if (origReplacementFunc(match, key, values2, timeZone2, dialect2, options2) !== void 0) {
+      replacementFunc = (match, key, values, timeZone, dialect, options) => {
+        if (origReplacementFunc(match, key, values, timeZone, dialect, options) !== undefined) {
           return match;
         }
-        return void 0;
+        return undefined;
       };
     }
+
     const timeZone = null;
     const list = Array.isArray(values);
     sql = sql.replace(/\B\$(\$|\w+)/g, (match, key) => {
-      if (key === "$") {
+      if ('$' === key) {
         return options.skipUnescape ? match : key;
       }
+
       let replVal;
       if (list) {
         if (key.match(/^[1-9]\d*$/)) {
@@ -88,34 +98,56 @@ class AbstractQuery {
       } else if (!key.match(/^\d*$/)) {
         replVal = replacementFunc(match, key, values, timeZone, dialect, options);
       }
-      if (replVal === void 0) {
+      if (replVal === undefined) {
         throw new Error(`Named bind parameter "${match}" has no value in the given object.`);
       }
       return replVal;
     });
     return [sql, []];
   }
-  formatError(error, errStack) {
-    error.stack = errStack;
-    return error;
-  }
+
+  /**
+   * Execute the passed sql query.
+   *
+   * Examples:
+   *
+   *     query.run('SELECT 1')
+   *
+   * @private
+   */
   run() {
-    throw new Error("The run method wasn't overwritten!");
+    throw new Error('The run method wasn\'t overwritten!');
   }
+
+  /**
+   * Check the logging option of the instance and print deprecation warnings.
+   *
+   * @private
+   */
   checkLoggingOption() {
     if (this.options.logging === true) {
       deprecations.noTrueLogging();
+      // eslint-disable-next-line no-console
       this.options.logging = console.log;
     }
   }
+
+  /**
+   * Get the attributes of an insert query, which contains the just inserted id.
+   *
+   * @returns {string} The field name.
+   * @private
+   */
   getInsertIdField() {
-    return "insertId";
+    return 'insertId';
   }
+
   getUniqueConstraintErrorMessage(field) {
-    let message = field ? `${field} must be unique` : "Must be unique";
+    let message = field ? `${field} must be unique` : 'Must be unique';
+
     if (field && this.model) {
       for (const key of Object.keys(this.model.uniqueKeys)) {
-        if (this.model.uniqueKeys[key].fields.includes(field.replace(/"/g, ""))) {
+        if (this.model.uniqueKeys[key].fields.includes(field.replace(/"/g, ''))) {
           if (this.model.uniqueKeys[key].msg) {
             message = this.model.uniqueKeys[key].msg;
           }
@@ -124,89 +156,124 @@ class AbstractQuery {
     }
     return message;
   }
+
   isRawQuery() {
     return this.options.type === QueryTypes.RAW;
   }
+
   isVersionQuery() {
     return this.options.type === QueryTypes.VERSION;
   }
+
   isUpsertQuery() {
     return this.options.type === QueryTypes.UPSERT;
   }
+
   isInsertQuery(results, metaData) {
     let result = true;
+
     if (this.options.type === QueryTypes.INSERT) {
       return true;
     }
-    result = result && this.sql.toLowerCase().startsWith("insert into");
+
+    // is insert query if sql contains insert into
+    result = result && this.sql.toLowerCase().startsWith('insert into');
+
+    // is insert query if no results are passed or if the result has the inserted id
     result = result && (!results || Object.prototype.hasOwnProperty.call(results, this.getInsertIdField()));
+
+    // is insert query if no metadata are passed or if the metadata has the inserted id
     result = result && (!metaData || Object.prototype.hasOwnProperty.call(metaData, this.getInsertIdField()));
+
     return result;
   }
+
   handleInsertQuery(results, metaData) {
     if (this.instance) {
+      // add the inserted row id to the instance
       const autoIncrementAttribute = this.model.autoIncrementAttribute;
       let id = null;
+
       id = id || results && results[this.getInsertIdField()];
       id = id || metaData && metaData[this.getInsertIdField()];
+
       this.instance[autoIncrementAttribute] = id;
     }
   }
+
   isShowTablesQuery() {
     return this.options.type === QueryTypes.SHOWTABLES;
   }
+
   handleShowTablesQuery(results) {
-    return _.flatten(results.map((resultSet) => Object.values(resultSet)));
+    return _.flatten(results.map(resultSet => Object.values(resultSet)));
   }
+
   isShowIndexesQuery() {
     return this.options.type === QueryTypes.SHOWINDEXES;
   }
+
   isShowConstraintsQuery() {
     return this.options.type === QueryTypes.SHOWCONSTRAINTS;
   }
+
   isDescribeQuery() {
     return this.options.type === QueryTypes.DESCRIBE;
   }
+
   isSelectQuery() {
     return this.options.type === QueryTypes.SELECT;
   }
+
   isBulkUpdateQuery() {
     return this.options.type === QueryTypes.BULKUPDATE;
   }
+
   isBulkDeleteQuery() {
     return this.options.type === QueryTypes.BULKDELETE;
   }
+
   isForeignKeysQuery() {
     return this.options.type === QueryTypes.FOREIGNKEYS;
   }
+
   isUpdateQuery() {
     return this.options.type === QueryTypes.UPDATE;
   }
+
   handleSelectQuery(results) {
     let result = null;
+
+    // Map raw fields to names if a mapping is provided
     if (this.options.fieldMap) {
       const fieldMap = this.options.fieldMap;
-      results = results.map((result2) => _.reduce(fieldMap, (result3, name, field) => {
-        if (result3[field] !== void 0 && name !== field) {
-          result3[name] = result3[field];
-          delete result3[field];
+      results = results.map(result => _.reduce(fieldMap, (result, name, field) => {
+        if (result[field] !== undefined && name !== field) {
+          result[name] = result[field];
+          delete result[field];
         }
-        return result3;
-      }, result2));
+        return result;
+      }, result));
     }
+
+    // Raw queries
     if (this.options.raw) {
-      result = results.map((result2) => {
+      result = results.map(result => {
         let o = {};
-        for (const key in result2) {
-          if (Object.prototype.hasOwnProperty.call(result2, key)) {
-            o[key] = result2[key];
+
+        for (const key in result) {
+          if (Object.prototype.hasOwnProperty.call(result, key)) {
+            o[key] = result[key];
           }
         }
+
         if (this.options.nest) {
           o = Dot.transform(o);
         }
+
         return o;
       });
+    // Queries with include
     } else if (this.options.hasJoin === true) {
       results = AbstractQuery._groupJoinData(results, {
         model: this.model,
@@ -215,6 +282,7 @@ class AbstractQuery {
       }, {
         checkExisting: this.options.hasMultiAssociation
       });
+
       result = this.model.bulkBuild(results, {
         isNewRecord: false,
         include: this.options.include,
@@ -224,6 +292,7 @@ class AbstractQuery {
         attributes: this.options.originalAttributes || this.options.attributes,
         raw: true
       });
+    // Regular queries
     } else {
       result = this.model.bulkBuild(results, {
         isNewRecord: false,
@@ -231,37 +300,52 @@ class AbstractQuery {
         attributes: this.options.originalAttributes || this.options.attributes
       });
     }
+
+    // return the first real model instance if options.plain is set (e.g. Model.find)
     if (this.options.plain) {
       result = result.length === 0 ? null : result[0];
     }
     return result;
   }
+
   isShowOrDescribeQuery() {
     let result = false;
-    result = result || this.sql.toLowerCase().startsWith("show");
-    result = result || this.sql.toLowerCase().startsWith("describe");
+
+    result = result || this.sql.toLowerCase().startsWith('show');
+    result = result || this.sql.toLowerCase().startsWith('describe');
+
     return result;
   }
+
   isCallQuery() {
-    return this.sql.toLowerCase().startsWith("call");
+    return this.sql.toLowerCase().startsWith('call');
   }
+
+  /**
+   * @param {string} sql
+   * @param {Function} debugContext
+   * @param {Array|object} parameters
+   * @protected
+   * @returns {Function} A function to call after the query was completed.
+   */
   _logQuery(sql, debugContext, parameters) {
     const { connection, options } = this;
     const benchmark = this.sequelize.options.benchmark || options.benchmark;
     const logQueryParameters = this.sequelize.options.logQueryParameters || options.logQueryParameters;
     const startTime = Date.now();
-    let logParameter = "";
+    let logParameter = '';
+
     if (logQueryParameters && parameters) {
-      const delimiter = sql.endsWith(";") ? "" : ";";
+      const delimiter = sql.endsWith(';') ? '' : ';';
       let paramStr;
       if (Array.isArray(parameters)) {
-        paramStr = parameters.map((p) => safeStringifyJson(p)).join(", ");
+        paramStr = parameters.map(p=>JSON.stringify(p)).join(', ');
       } else {
-        paramStr = safeStringifyJson(parameters);
+        paramStr = JSON.stringify(parameters);
       }
       logParameter = `${delimiter} ${paramStr}`;
     }
-    const fmt = `(${connection.uuid || "default"}): ${sql}${logParameter}`;
+    const fmt = `(${connection.uuid || 'default'}): ${sql}${logParameter}`;
     const msg = `Executing ${fmt}`;
     debugContext(msg);
     if (!benchmark) {
@@ -275,17 +359,76 @@ class AbstractQuery {
       }
     };
   }
+
+  /**
+   * The function takes the result of the query execution and groups
+   * the associated data by the callee.
+   *
+   * Example:
+   *   groupJoinData([
+   *     {
+   *       some: 'data',
+   *       id: 1,
+   *       association: { foo: 'bar', id: 1 }
+   *     }, {
+   *       some: 'data',
+   *       id: 1,
+   *       association: { foo: 'bar', id: 2 }
+   *     }, {
+   *       some: 'data',
+   *       id: 1,
+   *       association: { foo: 'bar', id: 3 }
+   *     }
+   *   ])
+   *
+   * Result:
+   *   Something like this:
+   *
+   *   [
+   *     {
+   *       some: 'data',
+   *       id: 1,
+   *       association: [
+   *         { foo: 'bar', id: 1 },
+   *         { foo: 'bar', id: 2 },
+   *         { foo: 'bar', id: 3 }
+   *       ]
+   *     }
+   *   ]
+   *
+   * @param {Array} rows
+   * @param {object} includeOptions
+   * @param {object} options
+   * @private
+   */
   static _groupJoinData(rows, includeOptions, options) {
+
+    /*
+     * Assumptions
+     * ID is not necessarily the first field
+     * All fields for a level is grouped in the same set (i.e. Panel.id, Task.id, Panel.title is not possible)
+     * Parent keys will be seen before any include/child keys
+     * Previous set won't necessarily be parent set (one parent could have two children, one child would then be previous set for the other)
+     */
+
+    /*
+     * Author (MH) comment: This code is an unreadable mess, but it's performant.
+     * groupJoinData is a performance critical function so we prioritize perf over readability.
+     */
     if (!rows.length) {
       return [];
     }
+
+    // Generic looping
     let i;
     let length;
     let $i;
     let $length;
+    // Row specific looping
     let rowsI;
     let row;
     const rowsLength = rows.length;
+    // Key specific looping
     let keys;
     let key;
     let keyI;
@@ -295,21 +438,24 @@ class AbstractQuery {
     let topValues;
     let topExists;
     const checkExisting = options.checkExisting;
+    // If we don't have to deduplicate we can pre-allocate the resulting array
     let itemHash;
     let parentHash;
     let topHash;
     const results = checkExisting ? [] : new Array(rowsLength);
     const resultMap = {};
     const includeMap = {};
+    // Result variables for the respective functions
     let $keyPrefix;
     let $keyPrefixString;
-    let $prevKeyPrefixString;
+    let $prevKeyPrefixString; // eslint-disable-line
     let $prevKeyPrefix;
     let $lastKeyPrefix;
     let $current;
     let $parent;
+    // Map each key to an include option
     let previousPiece;
-    const buildIncludeMap = (piece) => {
+    const buildIncludeMap = piece => {
       if (Object.prototype.hasOwnProperty.call($current.includeMap, piece)) {
         includeMap[key] = $current = $current.includeMap[piece];
         if (previousPiece) {
@@ -320,93 +466,122 @@ class AbstractQuery {
         includeMap[previousPiece] = $current;
       }
     };
+    // Calculate the string prefix of a key ('User.Results' for 'User.Results.id')
     const keyPrefixStringMemo = {};
-    const keyPrefixString = (key2, memo) => {
-      if (!Object.prototype.hasOwnProperty.call(memo, key2)) {
-        memo[key2] = key2.substr(0, key2.lastIndexOf("."));
+    const keyPrefixString = (key, memo) => {
+      if (!Object.prototype.hasOwnProperty.call(memo, key)) {
+        memo[key] = key.substr(0, key.lastIndexOf('.'));
       }
-      return memo[key2];
+      return memo[key];
     };
+    // Removes the prefix from a key ('id' for 'User.Results.id')
     const removeKeyPrefixMemo = {};
-    const removeKeyPrefix = (key2) => {
-      if (!Object.prototype.hasOwnProperty.call(removeKeyPrefixMemo, key2)) {
-        const index = key2.lastIndexOf(".");
-        removeKeyPrefixMemo[key2] = key2.substr(index === -1 ? 0 : index + 1);
+    const removeKeyPrefix = key => {
+      if (!Object.prototype.hasOwnProperty.call(removeKeyPrefixMemo, key)) {
+        const index = key.lastIndexOf('.');
+        removeKeyPrefixMemo[key] = key.substr(index === -1 ? 0 : index + 1);
       }
-      return removeKeyPrefixMemo[key2];
+      return removeKeyPrefixMemo[key];
     };
+    // Calculates the array prefix of a key (['User', 'Results'] for 'User.Results.id')
     const keyPrefixMemo = {};
-    const keyPrefix = (key2) => {
-      if (!Object.prototype.hasOwnProperty.call(keyPrefixMemo, key2)) {
-        const prefixString = keyPrefixString(key2, keyPrefixStringMemo);
+    const keyPrefix = key => {
+      // We use a double memo and keyPrefixString so that different keys with the same prefix will receive the same array instead of differnet arrays with equal values
+      if (!Object.prototype.hasOwnProperty.call(keyPrefixMemo, key)) {
+        const prefixString = keyPrefixString(key, keyPrefixStringMemo);
         if (!Object.prototype.hasOwnProperty.call(keyPrefixMemo, prefixString)) {
-          keyPrefixMemo[prefixString] = prefixString ? prefixString.split(".") : [];
+          keyPrefixMemo[prefixString] = prefixString ? prefixString.split('.') : [];
         }
-        keyPrefixMemo[key2] = keyPrefixMemo[prefixString];
+        keyPrefixMemo[key] = keyPrefixMemo[prefixString];
       }
-      return keyPrefixMemo[key2];
+      return keyPrefixMemo[key];
     };
+    // Calcuate the last item in the array prefix ('Results' for 'User.Results.id')
     const lastKeyPrefixMemo = {};
-    const lastKeyPrefix = (key2) => {
-      if (!Object.prototype.hasOwnProperty.call(lastKeyPrefixMemo, key2)) {
-        const prefix2 = keyPrefix(key2);
-        const length2 = prefix2.length;
-        lastKeyPrefixMemo[key2] = !length2 ? "" : prefix2[length2 - 1];
+    const lastKeyPrefix = key => {
+      if (!Object.prototype.hasOwnProperty.call(lastKeyPrefixMemo, key)) {
+        const prefix = keyPrefix(key);
+        const length = prefix.length;
+
+        lastKeyPrefixMemo[key] = !length ? '' : prefix[length - 1];
       }
-      return lastKeyPrefixMemo[key2];
+      return lastKeyPrefixMemo[key];
     };
-    const getUniqueKeyAttributes = (model) => {
-      let uniqueKeyAttributes2 = _.chain(model.uniqueKeys);
-      uniqueKeyAttributes2 = uniqueKeyAttributes2.result(`${uniqueKeyAttributes2.findKey()}.fields`).map((field) => _.findKey(model.attributes, (chr) => chr.field === field)).value();
-      return uniqueKeyAttributes2;
+    const getUniqueKeyAttributes = model => {
+      let uniqueKeyAttributes = _.chain(model.uniqueKeys);
+      uniqueKeyAttributes = uniqueKeyAttributes
+        .result(`${uniqueKeyAttributes.findKey()}.fields`)
+        .map(field => _.findKey(model.attributes, chr => chr.field === field))
+        .value();
+
+      return uniqueKeyAttributes;
     };
-    const stringify = (obj) => obj instanceof Buffer ? obj.toString("hex") : obj;
+    const stringify = obj => obj instanceof Buffer ? obj.toString('hex') : obj;
     let primaryKeyAttributes;
     let uniqueKeyAttributes;
     let prefix;
+
     for (rowsI = 0; rowsI < rowsLength; rowsI++) {
       row = rows[rowsI];
+
+      // Keys are the same for all rows, so only need to compute them on the first row
       if (rowsI === 0) {
         keys = Object.keys(row);
         keyLength = keys.length;
       }
+
       if (checkExisting) {
         topExists = false;
+
+        // Compute top level hash key (this is usually just the primary key values)
         $length = includeOptions.model.primaryKeyAttributes.length;
-        topHash = "";
+        topHash = '';
         if ($length === 1) {
           topHash = stringify(row[includeOptions.model.primaryKeyAttributes[0]]);
-        } else if ($length > 1) {
+        }
+        else if ($length > 1) {
           for ($i = 0; $i < $length; $i++) {
             topHash += stringify(row[includeOptions.model.primaryKeyAttributes[$i]]);
           }
-        } else if (!_.isEmpty(includeOptions.model.uniqueKeys)) {
+        }
+        else if (!_.isEmpty(includeOptions.model.uniqueKeys)) {
           uniqueKeyAttributes = getUniqueKeyAttributes(includeOptions.model);
           for ($i = 0; $i < uniqueKeyAttributes.length; $i++) {
             topHash += row[uniqueKeyAttributes[$i]];
           }
         }
       }
+
       topValues = values = {};
-      $prevKeyPrefix = void 0;
+      $prevKeyPrefix = undefined;
       for (keyI = 0; keyI < keyLength; keyI++) {
         key = keys[keyI];
+
+        // The string prefix isn't actualy needed
+        // We use it so keyPrefix for different keys will resolve to the same array if they have the same prefix
+        // TODO: Find a better way?
         $keyPrefixString = keyPrefixString(key, keyPrefixStringMemo);
         $keyPrefix = keyPrefix(key);
+
+        // On the first row we compute the includeMap
         if (rowsI === 0 && !Object.prototype.hasOwnProperty.call(includeMap, key)) {
           if (!$keyPrefix.length) {
-            includeMap[key] = includeMap[""] = includeOptions;
+            includeMap[key] = includeMap[''] = includeOptions;
           } else {
             $current = includeOptions;
-            previousPiece = void 0;
+            previousPiece = undefined;
             $keyPrefix.forEach(buildIncludeMap);
           }
         }
-        if ($prevKeyPrefix !== void 0 && $prevKeyPrefix !== $keyPrefix) {
+        // End of key set
+        if ($prevKeyPrefix !== undefined && $prevKeyPrefix !== $keyPrefix) {
           if (checkExisting) {
+            // Compute hash key for this set instance
+            // TODO: Optimize
             length = $prevKeyPrefix.length;
             $parent = null;
             parentHash = null;
+
             if (length) {
               for (i = 0; i < length; i++) {
                 prefix = $parent ? `${$parent}.${$prevKeyPrefix[i]}` : $prevKeyPrefix[i];
@@ -415,11 +590,13 @@ class AbstractQuery {
                 itemHash = prefix;
                 if ($length === 1) {
                   itemHash += stringify(row[`${prefix}.${primaryKeyAttributes[0]}`]);
-                } else if ($length > 1) {
+                }
+                else if ($length > 1) {
                   for ($i = 0; $i < $length; $i++) {
                     itemHash += stringify(row[`${prefix}.${primaryKeyAttributes[$i]}`]);
                   }
-                } else if (!_.isEmpty(includeMap[prefix].model.uniqueKeys)) {
+                }
+                else if (!_.isEmpty(includeMap[prefix].model.uniqueKeys)) {
                   uniqueKeyAttributes = getUniqueKeyAttributes(includeMap[prefix].model);
                   for ($i = 0; $i < uniqueKeyAttributes.length; $i++) {
                     itemHash += row[`${prefix}.${uniqueKeyAttributes[$i]}`];
@@ -428,6 +605,7 @@ class AbstractQuery {
                 if (!parentHash) {
                   parentHash = topHash;
                 }
+
                 itemHash = parentHash + itemHash;
                 $parent = prefix;
                 if (i < length - 1) {
@@ -437,6 +615,7 @@ class AbstractQuery {
             } else {
               itemHash = topHash;
             }
+
             if (itemHash === topHash) {
               if (!resultMap[itemHash]) {
                 resultMap[itemHash] = values;
@@ -446,6 +625,7 @@ class AbstractQuery {
             } else if (!resultMap[itemHash]) {
               $parent = resultMap[parentHash];
               $lastKeyPrefix = lastKeyPrefix(prevKey);
+
               if (includeMap[prevKey].association.isSingleAssociation) {
                 if ($parent) {
                   $parent[$lastKeyPrefix] = resultMap[itemHash] = values;
@@ -457,8 +637,13 @@ class AbstractQuery {
                 $parent[$lastKeyPrefix].push(resultMap[itemHash] = values);
               }
             }
+
+            // Reset values
             values = {};
           } else {
+            // If checkExisting is false it's because there's only 1:1 associations in this query
+            // However we still need to map onto the appropriate parent
+            // For 1:1 we map forward, initializing the value object on the parent to be filled in the next iterations of the loop
             $current = topValues;
             length = $keyPrefix.length;
             if (length) {
@@ -471,15 +656,19 @@ class AbstractQuery {
             }
           }
         }
+
+        // End of iteration, set value and set prev values (for next iteration)
         values[removeKeyPrefix(key)] = row[key];
         prevKey = key;
         $prevKeyPrefix = $keyPrefix;
         $prevKeyPrefixString = $keyPrefixString;
       }
+
       if (checkExisting) {
         length = $prevKeyPrefix.length;
         $parent = null;
         parentHash = null;
+
         if (length) {
           for (i = 0; i < length; i++) {
             prefix = $parent ? `${$parent}.${$prevKeyPrefix[i]}` : $prevKeyPrefix[i];
@@ -488,11 +677,13 @@ class AbstractQuery {
             itemHash = prefix;
             if ($length === 1) {
               itemHash += stringify(row[`${prefix}.${primaryKeyAttributes[0]}`]);
-            } else if ($length > 0) {
+            }
+            else if ($length > 0) {
               for ($i = 0; $i < $length; $i++) {
                 itemHash += stringify(row[`${prefix}.${primaryKeyAttributes[$i]}`]);
               }
-            } else if (!_.isEmpty(includeMap[prefix].model.uniqueKeys)) {
+            }
+            else if (!_.isEmpty(includeMap[prefix].model.uniqueKeys)) {
               uniqueKeyAttributes = getUniqueKeyAttributes(includeMap[prefix].model);
               for ($i = 0; $i < uniqueKeyAttributes.length; $i++) {
                 itemHash += row[`${prefix}.${uniqueKeyAttributes[$i]}`];
@@ -501,6 +692,7 @@ class AbstractQuery {
             if (!parentHash) {
               parentHash = topHash;
             }
+
             itemHash = parentHash + itemHash;
             $parent = prefix;
             if (i < length - 1) {
@@ -510,6 +702,7 @@ class AbstractQuery {
         } else {
           itemHash = topHash;
         }
+
         if (itemHash === topHash) {
           if (!resultMap[itemHash]) {
             resultMap[itemHash] = values;
@@ -519,6 +712,7 @@ class AbstractQuery {
         } else if (!resultMap[itemHash]) {
           $parent = resultMap[parentHash];
           $lastKeyPrefix = lastKeyPrefix(prevKey);
+
           if (includeMap[prevKey].association.isSingleAssociation) {
             if ($parent) {
               $parent[$lastKeyPrefix] = resultMap[itemHash] = values;
@@ -537,10 +731,11 @@ class AbstractQuery {
         results[rowsI] = topValues;
       }
     }
+
     return results;
   }
 }
+
 module.exports = AbstractQuery;
 module.exports.AbstractQuery = AbstractQuery;
 module.exports.default = AbstractQuery;
-//# sourceMappingURL=query.js.map

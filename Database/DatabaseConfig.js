@@ -2,6 +2,26 @@ const express = require("express");
 const mysql = require("mysql");
 const path = require("path");
 require('dotenv').config({ path: require('find-config')('.env') })
+const Sequlize = require("sequelize");
+
+const sequelize = new Sequlize (
+    'FootballApi',
+    process.env.DB_USER,
+    process.env.DB_PASS,
+    {
+        host: process.env.DB_HOST,
+        dialect: 'mysql'
+    }
+);
+
+const Connection = sequelize.authenticate().then(()=>{
+    console.log("Database connected successfully");
+})
+.catch((error)=>{
+  console.log(error)
+})
+
+
 
 const DbConnection = mysql.createPool({
     "host": process.env.DB_HOST,
@@ -25,4 +45,4 @@ catch{
     console.log("some connectivity problem")
 }
 
-module.exports = DbConnection
+module.exports = Connection;

@@ -1,9 +1,12 @@
-"use strict";
-const stores = /* @__PURE__ */ new Map();
-module.exports = (dialect) => {
+'use strict';
+
+const stores = new Map();
+
+module.exports = dialect => {
   if (!stores.has(dialect)) {
-    stores.set(dialect, /* @__PURE__ */ new Map());
+    stores.set(dialect, new Map());
   }
+
   return {
     clear() {
       stores.get(dialect).clear();
@@ -18,4 +21,3 @@ module.exports = (dialect) => {
     }
   };
 };
-//# sourceMappingURL=parserStore.js.map
