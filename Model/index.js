@@ -45,5 +45,5 @@ database.sequelize.sync()
 // database.Clubs.hasMany(database.Players,{
 //     as: 'Players'
 // })
-
+//Error in table creation and schema migration
 module.exports = database;
