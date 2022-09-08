@@ -38,12 +38,12 @@ database.sequelize.sync()
 
 /* Realations between tables */
 
-// database.League.hasMany(database.Clubs,{
-//     as: 'Clubs'
-// });
+database.League.hasMany(database.Clubs,{
+    as: 'Clubs'
+});
 
-// database.Clubs.hasMany(database.Players,{
-//     as: 'Players'
-// })
-//Error in table creation and schema migration
+database.Clubs.hasMany(database.Players,{
+    as: 'Players'
+})
+
 module.exports = database;
