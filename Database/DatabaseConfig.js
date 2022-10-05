@@ -49,10 +49,10 @@
 const express = require("express");
 
 module.exports = {
-    host: process.env.DB_HOST,
-    password: process.env.DB_PASS,
-    user:  process.env.DB_USER,
-    port: process.env.DB_PORT,
-    database: 'FootballApi',
-    dialect: 'mysql'
-}
+  host: process.env.DB_HOST,
+  password: process.env.DB_PASS,
+  user: process.env.DB_USER,
+  port: process.env.DB_PORT,
+  database: "FootballApi",
+  dialect: "mysql",
+};

@@ -4,14 +4,8 @@ const multerS3 = require("multer-s3");
 const s3 = new aws.S3();
 
 aws.config.update({
-    secretAccessKey: process.env.AW_KEY,
-    accessKeyId: process.env.AWS_SECRET_KEY
-})
+  secretAccessKey: process.env.AW_KEY,
+  accessKeyId: process.env.AWS_SECRET_KEY,
+});
 
-const ImageFilter = () =>{
-
-}
-
-
-
-
+const ImageFilter = () => {};
