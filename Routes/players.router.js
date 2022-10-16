@@ -4,10 +4,11 @@ const {
   GetPlayersByName,
   GetPlayersId,
 } = require("../Controller/players.controller");
+const token = require("../Middleware/AuthToken.js");
 const PlayerRouter = express.Router();
 
-PlayerRouter.get("/players", GetAllPlayers);
-PlayerRouter.get("/players/:id", GetPlayersId);
-PlayerRouter.get("/players/:name", GetPlayersByName);
+PlayerRouter.get("/players", token, GetAllPlayers);
+PlayerRouter.get("/players/:id", token, GetPlayersId);
+PlayerRouter.get("/players/:name", token, GetPlayersByName);
 
 module.exports = PlayerRouter;

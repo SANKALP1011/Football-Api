@@ -2,10 +2,10 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const AuthToken = (req, res, next) => {
-  const demoToken = "demo12312";
-  let token = req.get("authorizations");
+  const demoToken = "demo";
+  let token = req.get("authorization");
   if (token) {
-    token = token.slice(5);
+    token = token.slice(7);
     jwt.verify(token, demoToken, (err, decodeToken) => {
       if (err) {
         console.log(err);
