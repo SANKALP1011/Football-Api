@@ -3,11 +3,13 @@ const app = express();
 const path = require("path");
 const swaggerJsDocs = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const Welcome = require("./Routes/initial.router");
 const User = require("./Routes/User.routes");
 const League = require("./Routes/league.router");
 const Clubs = require("./Routes/clubs.router");
 const Players = require("./Routes/players.router");
 const Trophie = require("./Routes/trophies.router");
+const InitailRoute = require("./Routes/initial.router");
 
 const port = process.env.PORT || "3004";
 app.use(express.urlencoded({ extended: true }));
@@ -52,7 +54,7 @@ var options = {
 const swaggerConfifg = swaggerJsDocs(swaggerDocs);
 
 app.use("/v1", swaggerUi.serve, swaggerUi.setup(swaggerConfifg, options));
-
+app.use(InitailRoute);
 app.use(Clubs);
 app.use(User);
 app.use(League);
