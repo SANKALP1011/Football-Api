@@ -1,5 +1,8 @@
 # Football-Api v1.0.0
-- Node and express based ongoing football api
+- Node and express based football api.
+
+# Note 
+- Documentation would be added in the later verison
 
 # About 
 - This is the authenticated football where once the user is authenticated then user could use the auth token to access the other football routes.
