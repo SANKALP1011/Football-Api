@@ -5,9 +5,10 @@ const {
   GetLeagueByName,
   GetLeagueById,
 } = require("../Controller/league.controller");
+const token = require("../Middleware/AuthToken");
 
-LeagueRouter.get("/league", GetAllLeagues);
-LeagueRouter.get("/league/:id", GetLeagueById);
-LeagueRouter.get("/league/:name", GetLeagueByName);
+LeagueRouter.get("/league", token, GetAllLeagues);
+LeagueRouter.get("/league/:id", token, GetLeagueById);
+LeagueRouter.get("/league/:name", token, GetLeagueByName);
 
 module.exports = LeagueRouter;
