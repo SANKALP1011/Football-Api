@@ -58,8 +58,8 @@ module.exports = {
       );
       console.log(PasswordValidation);
       if (PasswordValidation) {
-        const LoginToken = sign({ PasswordValidation: results }, "demo12312", {
-          expiresIn: 864000,
+        const LoginToken = sign({ PasswordValidation: results }, "demo", {
+          expiresIn: "24h",
         });
         return res.status(200).json({
           Succes: "Yes",

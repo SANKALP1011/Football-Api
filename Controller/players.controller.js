@@ -12,7 +12,8 @@ module.exports = {
       if (err) {
         return res.status(200).json({
           Success: "No",
-          message: err,
+          message:
+            "Currently , no player table has been added by the developer.",
         });
       } else {
         return res.status(500).json({
@@ -36,7 +37,8 @@ module.exports = {
         if (err) {
           return res.status(200).json({
             Success: "Yes",
-            message: err,
+            message:
+              "Currently , no player table has been added by the developer.",
           });
         } else {
           return res.status(500).json({
@@ -61,7 +63,8 @@ module.exports = {
         if (err) {
           return res.status(200).json({
             Success: "No",
-            message: err,
+            message:
+              "Currently , no player table has been added by the developer.",
           });
         } else {
           return res.status(500).json({
