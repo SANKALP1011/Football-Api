@@ -4,6 +4,9 @@
 # Note 
 - Documentation would be added in the later verison
 
+# Postman link
+> [![Run in Postman](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/24017825-7f078c23-7575-4119-bf33-a7ca56a59619?action=collection%2Ffork&collection-url=entityId%3D24017825-7f078c23-7575-4119-bf33-a7ca56a59619%26entityType%3Dcollection%26workspaceId%3D143bdef4-513c-4b83-bd4c-b3c4254b7837)
+
 # About 
 - This is the authenticated football where once the user is authenticated then user could use the auth token to access the other football routes.
 - This api fetches the information about various things such as Leagues , Clubs , Players and number of trophioes that club has won till now.
